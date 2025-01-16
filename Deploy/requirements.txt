@@ -6,3 +6,4 @@ joblib
 matplotlib
 scikit-learn
 streamlit
+gensim==4.1.2
