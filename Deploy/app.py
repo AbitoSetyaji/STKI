@@ -30,7 +30,7 @@ def main():
     st.markdown("### Search documents using a pre-trained Word2Vec model")
 
     # Load the model
-    model_path = '/mnt/data/word2vec_model.model'  # Path to the uploaded model
+    model_path = 'word2vec_model.model'  # Path to the uploaded model
     model = load_model(model_path)
 
     if model:
