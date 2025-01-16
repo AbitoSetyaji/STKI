@@ -9,7 +9,7 @@ def load_model(model_path):
     return gensim.models.KeyedVectors.load(model_path)
 
 # Load your Word2Vec model
-model_path = '/mnt/data/word2vec_model.model'
+model_path = 'word2vec_model.model'
 if os.path.exists(model_path):
     model = load_model(model_path)
 else:
