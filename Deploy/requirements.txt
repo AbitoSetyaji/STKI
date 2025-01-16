@@ -1,9 +1,2 @@
-pandas
-pip==24.0
-wordcloud
-seaborn
-joblib
-matplotlib
-scikit-learn
 streamlit
 gensim
