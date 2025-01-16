@@ -71,15 +71,10 @@ def main():
                 "This is a simple search engine implementation",
             ]
 
-            # Filter results that contain the query
-            search_results = [item for item in data if preprocessed_query in item.lower()]
-
-            if search_results:
-                st.write("### Search Results:")
-                for result in search_results:
-                    st.write(f"- {result}")
-            else:
-                st.write("No results found for your query.")
+            # Display all results unconditionally
+            st.write("### Search Results:")
+            for result in data:
+                st.write(f"- {result}")
         else:
             st.warning("Please enter a search query.")
 
