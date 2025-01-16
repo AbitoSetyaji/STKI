@@ -62,17 +62,24 @@ def main():
     if st.button("Search"):
         if query:
             preprocessed_query = query.lower().strip()  # Example preprocessing
-            # Simulated search results (replace with actual search logic if needed)
-            search_results = [
-                f"Result 1 for '{preprocessed_query}'",
-                f"Result 2 for '{preprocessed_query}'",
-                f"Result 3 for '{preprocessed_query}'",
-                f"Result 4 for '{preprocessed_query}'",
-                f"Result 5 for '{preprocessed_query}'",
+            # Example data to search from
+            data = [
+                "Streamlit is an open-source app framework",
+                "Google search engine provides quick results",
+                "Streamlit apps are easy to build",
+                "Searching in Python can be powerful",
+                "This is a simple search engine implementation",
             ]
-            st.write("### Search Results:")
-            for result in search_results:
-                st.write(f"- {result}")
+
+            # Filter results that contain the query
+            search_results = [item for item in data if preprocessed_query in item.lower()]
+
+            if search_results:
+                st.write("### Search Results:")
+                for result in search_results:
+                    st.write(f"- {result}")
+            else:
+                st.write("No results found for your query.")
         else:
             st.warning("Please enter a search query.")
 
