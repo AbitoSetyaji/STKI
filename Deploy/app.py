@@ -1,35 +1,29 @@
 import streamlit as st
-from gensim.models import Word2Vec
+import gensim
 
 # Load the Word2Vec model
 @st.cache_resource
-def load_model(file_path):
+def load_model():
+    return gensim.models.Word2Vec.load("/mnt/data/word2vec_model.model")
+
+# Initialize model
+model = load_model()
+
+# UI/UX setup
+st.set_page_config(page_title="Semantic Search Engine", layout="centered")
+st.title("Semantic Search")
+st.write("Search the most relevant words based on your input")
+
+# Search bar
+query = st.text_input("Enter a word or phrase:", placeholder="Type something here...")
+
+if query:
     try:
-        model = Word2Vec.load(file_path)
-        return model
-    except Exception as e:
-        st.error(f"Error loading model: {e}")
-        return None
-
-# File path to the uploaded model
-model_file_path = '/mnt/data/word2vec_model.model'
-model = load_model(model_file_path)
-
-# Streamlit UI
-st.title("Search Engine with Word2Vec Model")
-
-if model:
-    st.subheader("Enter a word to find similar terms")
-    query = st.text_input("Search query:")
-
-    if query:
-        try:
-            # Fetch the most similar words
-            results = model.wv.most_similar(query, topn=10)
-            st.subheader("Results")
-            for word, similarity in results:
-                st.write(f"{word}: {similarity:.4f}")
-        except KeyError:
-            st.error("Word not found in the vocabulary. Please try another word.")
-else:
-    st.error("Failed to load the model. Please check the uploaded file.")
+        # Find similar words using Word2Vec model
+        results = model.wv.most_similar(query, topn=10)
+        
+        st.subheader("Results:")
+        for word, score in results:
+            st.write(f"{word}: {score:.4f}")
+    except KeyError:
+        st.error("The word you entered is not in the vocabulary of the model.")
