@@ -1,52 +1,52 @@
 import streamlit as st
-import gensim
-import numpy as np
+from gensim.models import Word2Vec
+import os
 
-# Load the Word2Vec model
-@st.cache_resource
-def load_model():
-    return gensim.models.Word2Vec.load("/mnt/data/word2vec_model.model")
+# Load Word2Vec Model
+def load_model(model_path):
+    if os.path.exists(model_path):
+        return Word2Vec.load(model_path)
+    else:
+        st.error("Model file not found!")
+        return None
 
-# Function to calculate similarity
-def calculate_similarity(query, documents, model):
-    query_vec = np.mean([model.wv[word] for word in query.split() if word in model.wv], axis=0)
-    similarities = []
-    for doc in documents:
-        doc_vec = np.mean([model.wv[word] for word in doc.split() if word in model.wv], axis=0)
-        sim = np.dot(query_vec, doc_vec) / (np.linalg.norm(query_vec) * np.linalg.norm(doc_vec))
-        similarities.append(sim)
-    return similarities
+# Retrieve documents based on query
+def search_documents(query, model):
+    # Check if the query is valid
+    if not query:
+        return []
 
-# Main Streamlit app
+    # Generate similar words using the model
+    try:
+        similar_words = model.wv.most_similar(query, topn=10)
+        return [word for word, _ in similar_words]
+    except KeyError:
+        st.warning("Query not found in the vocabulary. Try a different word.")
+        return []
+
+# Streamlit UI
 def main():
     st.title("Document Search Engine")
-    
-    # Load model
-    model = load_model()
-    
-    # Sample documents (replace with your actual documents)
-    documents = [
-        "Artificial intelligence is the simulation of human intelligence processes by machines.",
-        "Machine learning is a subset of AI focused on building systems that learn from data.",
-        "Deep learning involves neural networks with many layers for complex pattern recognition.",
-        "Natural language processing enables machines to understand and respond to text or speech."
-    ]
+    st.markdown("### Search documents using a pre-trained Word2Vec model")
 
-    # Input query
-    query = st.text_input("Enter your search query:")
+    # Load the model
+    model_path = '/mnt/data/word2vec_model.model'  # Path to the uploaded model
+    model = load_model(model_path)
 
-    if st.button("Search"):
-        if query:
-            similarities = calculate_similarity(query, documents, model)
-            
-            # Display results
-            sorted_results = sorted(zip(documents, similarities), key=lambda x: x[1], reverse=True)
-            
-            st.write("### Search Results:")
-            for i, (doc, sim) in enumerate(sorted_results):
-                st.write(f"**Result {i+1}:** {doc} (Similarity: {sim:.2f})")
-        else:
-            st.warning("Please enter a search query.")
+    if model:
+        # Input field for query
+        query = st.text_input("Enter your search query:")
+
+        # Search button
+        if st.button("Search"):
+            results = search_documents(query, model)
+            if results:
+                st.success("Results found!")
+                st.write("### Top Results:")
+                for i, result in enumerate(results, start=1):
+                    st.write(f"{i}. {result}")
+            else:
+                st.warning("No results found.")
 
 if __name__ == "__main__":
     main()
