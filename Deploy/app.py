@@ -1,52 +1,54 @@
 import streamlit as st
+import gensim
 from gensim.models import Word2Vec
 import os
 
-# Load Word2Vec Model
+# Load Word2Vec model
+@st.cache_resource
 def load_model(model_path):
-    if os.path.exists(model_path):
-        return Word2Vec.load(model_path)
-    else:
-        st.error("Model file not found!")
-        return None
+    return gensim.models.KeyedVectors.load(model_path)
 
-# Retrieve documents based on query
-def search_documents(query, model):
-    # Check if the query is valid
-    if not query:
-        return []
+# Load your Word2Vec model
+model_path = '/mnt/data/word2vec_model.model'
+if os.path.exists(model_path):
+    model = load_model(model_path)
+else:
+    st.error("Word2Vec model not found. Please upload a valid model.")
+    st.stop()
 
-    # Generate similar words using the model
-    try:
-        similar_words = model.wv.most_similar(query, topn=10)
-        return [word for word, _ in similar_words]
-    except KeyError:
-        st.warning("Query not found in the vocabulary. Try a different word.")
-        return []
+# Dummy document corpus
+documents = [
+    "Machine learning is fascinating.",
+    "Natural Language Processing is a branch of AI.",
+    "Streamlit makes it easy to build web apps.",
+    "Word embeddings like Word2Vec help in semantic search.",
+    "Python is a versatile programming language."
+]
+
+def search_documents(query, model, documents):
+    """Perform semantic search using Word2Vec."""
+    query_vector = model.infer_vector(query.split())
+    scores = []
+    for doc in documents:
+        doc_vector = model.infer_vector(doc.split())
+        similarity = model.wv.cosine_similarities(query_vector, [doc_vector])[0]
+        scores.append((similarity, doc))
+    scores = sorted(scores, key=lambda x: x[0], reverse=True)
+    return scores
 
 # Streamlit UI
-def main():
-    st.title("Document Search Engine")
-    st.markdown("### Search documents using a pre-trained Word2Vec model")
+st.title("Document Search Engine")
+st.write("Search documents using semantic queries powered by Word2Vec.")
 
-    # Load the model
-    model_path = 'word2vec_model.model'  # Path to the uploaded model
-    model = load_model(model_path)
+# Input query
+query = st.text_input("Enter your search query:", "")
 
-    if model:
-        # Input field for query
-        query = st.text_input("Enter your search query:")
-
-        # Search button
-        if st.button("Search"):
-            results = search_documents(query, model)
-            if results:
-                st.success("Results found!")
-                st.write("### Top Results:")
-                for i, result in enumerate(results, start=1):
-                    st.write(f"{i}. {result}")
-            else:
-                st.warning("No results found.")
-
-if __name__ == "__main__":
-    main()
+# Search button
+if st.button("Search"):
+    if query.strip():
+        results = search_documents(query, model, documents)
+        st.subheader("Search Results:")
+        for score, doc in results:
+            st.write(f"- {doc} (Score: {score:.4f})")
+    else:
+        st.warning("Please enter a query to search.")
