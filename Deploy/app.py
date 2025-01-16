@@ -1,5 +1,5 @@
 import streamlit as st
-from gensim.models import Word2Vec
+from gensim.models
 
 # Load Word2Vec model
 @st.cache_resource
