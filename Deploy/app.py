@@ -1,85 +1,39 @@
 import streamlit as st
-from PIL import Image
+from gensim.models import Word2Vec
 
-# Set up page configuration
-st.set_page_config(
-    page_title="Simple Search Engine",
-    page_icon="🔍",
-    layout="centered",
-    initial_sidebar_state="collapsed",
-)
+# Load Word2Vec model
+@st.cache_resource
+def load_model():
+    try:
+        model = Word2Vec.load("word2vec_model.model")
+        return model
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        return None
 
-# Create a Google-style search engine interface
-def main():
-    # Center align the content
-    st.markdown(
-        """
-        <style>
-        .centered {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            height: 100vh;
-        }
-        .search-bar {
-            width: 40%;
-            max-width: 600px;
-            min-width: 300px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            font-size: 16px;
-        }
-        .search-button {
-            background-color: #f8f9fa;
-            color: #202124;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+# Streamlit UI
+st.title("Search Engine UI with Streamlit")
 
-    # Centered container
-    st.markdown('<div class="centered">', unsafe_allow_html=True)
+# Sidebar settings
+st.sidebar.header("Search Settings")
+top_n = st.sidebar.slider("Number of Results", min_value=1, max_value=20, value=5)
 
-    # Display Google-style logo
-    st.image(
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/512px-Google_2015_logo.svg.png",
-        use_column_width=False,
-        width=300,
-    )
+# Load model
+model = load_model()
+if model:
+    # Search bar
+    query = st.text_input("Enter your search query:")
 
-    # Search bar input
-    query = st.text_input("", "", key="search_input")
+    if query:
+        # Generate search results
+        try:
+            results = model.wv.most_similar(query, topn=top_n)
 
-    # Search button
-    if st.button("Search"):
-        if query:
-            preprocessed_query = query.lower().strip()  # Example preprocessing
-            # Example data to search from
-            data = [
-                "Streamlit is an open-source app framework",
-                "Google search engine provides quick results",
-                "Streamlit apps are easy to build",
-                "Searching in Python can be powerful",
-                "This is a simple search engine implementation",
-            ]
-
-            # Display all results unconditionally
-            st.write("### Search Results:")
-            for result in data:
-                st.write(f"- {result}")
-        else:
-            st.warning("Please enter a search query.")
-
-    # Close centered container
-    st.markdown('</div>', unsafe_allow_html=True)
-
-if __name__ == "__main__":
-    main()
+            # Display results
+            st.subheader("Search Results:")
+            for i, (word, similarity) in enumerate(results, 1):
+                st.write(f"{i}. {word} (Similarity: {similarity:.2f})")
+        except KeyError:
+            st.warning("The query word is not in the vocabulary of the model.")
+else:
+    st.warning("Please upload a valid Word2Vec model to use the search functionality.")
