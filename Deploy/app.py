@@ -2,7 +2,7 @@ import streamlit as st
 from gensim.models import Word2Vec
 
 # Load the Word2Vec model (path to your uploaded model)
-model_path = '/mnt/data/word2vec_model.model'
+model_path = 'word2vec_model.model'
 
 try:
     model = Word2Vec.load(model_path)
