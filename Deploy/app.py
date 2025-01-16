@@ -61,7 +61,18 @@ def main():
     # Search button
     if st.button("Search"):
         if query:
-            st.write(f"You searched for: **{query}**")
+            preprocessed_query = query.lower().strip()  # Example preprocessing
+            # Simulated search results (replace with actual search logic if needed)
+            search_results = [
+                f"Result 1 for '{preprocessed_query}'",
+                f"Result 2 for '{preprocessed_query}'",
+                f"Result 3 for '{preprocessed_query}'",
+                f"Result 4 for '{preprocessed_query}'",
+                f"Result 5 for '{preprocessed_query}'",
+            ]
+            st.write("### Search Results:")
+            for result in search_results:
+                st.write(f"- {result}")
         else:
             st.warning("Please enter a search query.")
 
