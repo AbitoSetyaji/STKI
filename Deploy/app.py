@@ -1,38 +1,32 @@
 import streamlit as st
-import gensim
-from gensim.models import Word2Vec
+from gensim.models import Word2Vec, KeyedVectors
 
-# Load Word2Vec model
+# Load the Word2Vec model
 @st.cache_resource
-def load_model(model_path):
-    return gensim.models.KeyedVectors.load(model_path)
+def load_model():
+    model_path = 'word2vec_model.model'  # Path to your uploaded model
+    model = KeyedVectors.load(model_path)
+    return model
 
-# Search functionality
-def search_similar_words(model, query, top_n=10):
-    try:
-        results = model.most_similar(query, topn=top_n)
-        return results
-    except KeyError:
-        return None
+model = load_model()
 
-# Streamlit app
-st.title("Search Engine with Word2Vec")
+# Streamlit app layout
+st.title("Simple Search Engine")
+st.write("Enter a word or phrase, and the system will return related words.")
 
-# Load model
-model_path = "word2vec_model.model"
-model = load_model(model_path)
+# User input
+query = st.text_input("Enter your search query:", value="")
 
-# User input query
-query = st.text_input("Enter a word or phrase to search:")
-
-# Results display
-if query:
-    st.write(f"Results for: '{query}'")
-    results = search_similar_words(model, query)
-    if results:
-        for word, similarity in results:
-            st.write(f"{word}: {similarity:.4f}")
+# Handle search
+if st.button("Search"):
+    if query.strip():
+        try:
+            # Get most similar words
+            results = model.most_similar(query, topn=10)
+            st.write(f"Top results for '{query}':")
+            for word, similarity in results:
+                st.write(f"{word} (Similarity: {similarity:.2f})")
+        except KeyError:
+            st.error(f"'{query}' not found in the model's vocabulary. Try another word.")
     else:
-        st.write("No similar words found or word not in vocabulary.")
-
-st.write("\n\nUpload your Word2Vec model as 'word2vec_model.model' for customization!")
+        st.warning("Please enter a search query.")
