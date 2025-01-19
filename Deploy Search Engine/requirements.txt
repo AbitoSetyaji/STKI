@@ -4,3 +4,4 @@ matplotlib
 scikit-learn
 gensim
 pandas
+pip==24.3.1
