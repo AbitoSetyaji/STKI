@@ -18,13 +18,13 @@ def load_model(model_file):
         st.error(f"Error loading model: {e}")
         return None
 
-model_file = "word2vec_model.model"  # Path to your Word2Vec model file
+model_file = "Deploy/word2vec_model.model"  # Path to your Word2Vec model file
 model = load_model(model_file)
 
 # Load dataset
 def load_data():
     try:
-        data = pd.read_csv("lemmatized_dataset.csv")  # Path to your dataset
+        data = pd.read_csv("Deploy/lemmatized_dataset.csv")  # Path to your dataset
         return data
     except Exception as e:
         st.error(f"Error loading dataset: {e}")
