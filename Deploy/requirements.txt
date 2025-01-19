@@ -1,9 +1,3 @@
 streamlit
-matplotlib
-scikit-learn
-gensim==4.3.1
-scipy==1.11.3
-numpy>=1.18.0
-pandas>=1.3.0
-python_version >= "3.8"
-
+pandas
+gensim
